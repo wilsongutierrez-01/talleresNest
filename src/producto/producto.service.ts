@@ -46,8 +46,10 @@ export class ProductoService {
     return productosConImagenes;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} producto`;
+  async findOne(id: string) {
+    const producto = await this.productoModel.findById(id).populate('Imagen').exec();
+    producto.Imagen = await this.imageHelperService.getPresignedImageUrl(producto.Imagen);
+    return producto;
   }
 
   update(id: number, updateProductoDto: UpdateProductoDto) {
