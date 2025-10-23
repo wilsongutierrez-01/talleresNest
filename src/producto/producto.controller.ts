@@ -6,17 +6,39 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('producto')
 export class ProductoController {
   constructor(private readonly productoService: ProductoService) {}
 
   @Post()
-  create(@Body() createProductoDto: CreateProductoDto) {
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' }),
+          new MaxFileSizeValidator({
+            maxSize: 5 * 1024 * 1024,
+            message: 'File too large. Max size is 5MB',
+          }),
+        ],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() createProductoDto: CreateProductoDto
+  ) {
     const { Nombre, Descripcion, Precio, Imagen, Valoracion } =
       createProductoDto;
     return this.productoService.create({
@@ -25,7 +47,7 @@ export class ProductoController {
       Precio:  typeof Precio === 'string' ? parseFloat(Precio) : Precio,
       Imagen,
       Valoracion: typeof Valoracion === 'string' ? parseFloat(Valoracion) : Valoracion,
-    });
+    }, file);
   }
 
   @Get()

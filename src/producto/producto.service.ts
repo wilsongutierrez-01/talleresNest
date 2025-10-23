@@ -1,25 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Producto } from './schemas/Producto.schema';
+import { ImageHelperService } from 'src/image-helper/image-helper.service';
 
 @Injectable()
 export class ProductoService {
-  
   constructor(
-     @InjectModel(Producto.name)
+    @InjectModel(Producto.name)
     private readonly productoModel: Model<Producto>,
+    private readonly imageHelperService: ImageHelperService,
   ) {}
-  
-  create(createProductoDto: CreateProductoDto) {
-    const newProducto = new this.productoModel(createProductoDto);
-    return newProducto.save();
+
+  async create(createProductoDto: CreateProductoDto, image: Express.Multer.File) {
+    const imageInfo = this.imageHelperService.getImage(image);
+    const imageId = (await imageInfo)._id;
+    const { Nombre, Descripcion, Precio, Valoracion } = createProductoDto;
+    const newProducto = new this.productoModel({
+      Nombre,
+      Descripcion,
+      Precio,
+      Imagen: imageId,
+      Valoracion,
+    });
+   try {
+      await newProducto.save();
+    } catch (error) {
+      throw new ConflictException(
+        'Error de validación: ' + JSON.stringify(error),
+      );
+    }
+    return newProducto;
   }
 
-  findAll() {
-    return `This action returns all producto`;
+  async findAll() {
+    const productos = await this.productoModel.find().populate('Imagen').exec();
+    const productosConImagenes = await Promise.all(
+      productos.map(async (producto) => {
+        producto.Imagen = await this.imageHelperService.getPresignedImageUrl(producto.Imagen);
+        return producto;
+      }),
+    );
+    return productosConImagenes;
   }
 
   findOne(id: number) {
