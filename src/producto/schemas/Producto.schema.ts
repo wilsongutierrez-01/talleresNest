@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Image } from 'src/imgdb/schemas/image.schema';
 
-@Schema()
+@Schema({
+  timestamps: true,
+})
 export class Producto {
   @Prop({ required: true })
   Nombre: string;
@@ -17,6 +19,9 @@ export class Producto {
 
   @Prop({ required: false })
   Valoracion: number;
+
+  @Prop({ required: true })
+  stock: number;
 }
 
 export const ProductoSchema = SchemaFactory.createForClass(Producto);

@@ -39,7 +39,7 @@ export class ProductoController {
     file: Express.Multer.File,
     @Body() createProductoDto: CreateProductoDto
   ) {
-    const { Nombre, Descripcion, Precio, Imagen, Valoracion } =
+    const { Nombre, Descripcion, Precio, Imagen, Valoracion, stock } =
       createProductoDto;
     return this.productoService.create({
       Nombre,
@@ -47,6 +47,7 @@ export class ProductoController {
       Precio:  typeof Precio === 'string' ? parseFloat(Precio) : Precio,
       Imagen,
       Valoracion: typeof Valoracion === 'string' ? parseFloat(Valoracion) : Valoracion,
+      stock: typeof stock === 'string' ? parseInt(stock) : stock,
     }, file);
   }
 

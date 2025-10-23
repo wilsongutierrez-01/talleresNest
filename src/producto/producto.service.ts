@@ -17,13 +17,14 @@ export class ProductoService {
   async create(createProductoDto: CreateProductoDto, image: Express.Multer.File) {
     const imageInfo = this.imageHelperService.getImage(image);
     const imageId = (await imageInfo)._id;
-    const { Nombre, Descripcion, Precio, Valoracion } = createProductoDto;
+    const { Nombre, Descripcion, Precio, Valoracion, stock } = createProductoDto;
     const newProducto = new this.productoModel({
       Nombre,
       Descripcion,
       Precio,
       Imagen: imageId,
       Valoracion,
+      stock,
     });
    try {
       await newProducto.save();
