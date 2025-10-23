@@ -8,7 +8,6 @@ export class CreateProductoDto {
   Imagen: string;
 
   @IsNotEmpty()
-  @IsNumber()
   Precio: number;
 
   @IsOptional()
