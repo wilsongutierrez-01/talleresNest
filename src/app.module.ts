@@ -8,6 +8,9 @@ import { ImgdbModule } from './imgdb/imgdb.module';
 import { DmsModule } from './dms/dms.module';
 import { ImageHelperService } from './image-helper/image-helper.service';
 import { ImageHelperModule } from './image-helper/image-helper.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -21,7 +24,10 @@ import { ImageHelperModule } from './image-helper/image-helper.module';
     ProductoModule,
     ImgdbModule,
     DmsModule,
-    ImageHelperModule],
+    ImageHelperModule,
+    AuthModule,
+    UsersModule,
+    MailModule],
   controllers: [AppController],
   providers: [AppService, ImageHelperService,],
 })
